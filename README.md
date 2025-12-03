@@ -187,30 +187,12 @@ make type-check
 make security-scan
 ```
 
-## 📞 Контакты
 
-### Команда проекта:
-| Роль | Контакт |
-|------|---------|
-| **Product Owner** | Алексей Иванов - a.ivanov@company.com |
-| **CTO** | Дмитрий Петров - d.petrov@company.com |
-| **Lead Developer** | Сергей Сидоров - s.sidorov@company.com |
-| **QA Lead** | Мария Кузнецова - m.kuznetsova@company.com |
-
-## 📄 Лицензия
-
-Этот проект лицензирован под лицензией MIT - смотрите файл [LICENSE](LICENSE) для деталей.
-
----
-
-*Последнее обновление: 20 января 2024*  
-*Версия документации: 1.0.0*  
-*© 2024 AI HR Assistant Team. Все права защищены.*
-```
 
 ## 📁 **Структура директории docs/:**
 
 ```
+
 docs/
 ├── 📄 01-business-requirements.md         # Бизнес-цели, рынок, монетизация
 ├── 📄 02-system-analysis.md               # Функциональные требования
@@ -218,4 +200,5 @@ docs/
 ├── 📄 04-technical-specification.md       # Детальные технические требования
 ├── 📄 05-testing-plan.md                  # План тестирования
 └── 📄 README.md                           # Общая документация проекта
+
 ```

@@ -1,379 +1,362 @@
-# План архитектуры системы
+# План архитектуры системы: AI Career Scout
 
 ## 🏗️ Общая архитектурная схема
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Двусторонняя платформа                   │
+│                   Трехуровневая архитектура                  │
 ├─────────────────────────────────────────────────────────────┤
-│   Для соискателей              │    Для HR/компаний         │
-│   • Анализ резюме              │    • Анализ кандидатов     │
-│   • Поиск вакансий             │    • Управление вакансиями │
-│   • AI-подготовка              │    • Автоматизация отбора  │
-│   • Автоотклики                │    • Аналитика подбора     │
-└──────────────┬─────────────────┴──────────────┬─────────────┘
-               │                                │
-               ▼                                ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  Общий бэкенд слой                           │
-│           (Микросервисы с разделением доступа)              │
-└──────────────┬─────────────────┬──────────────┬─────────────┘
-               │                 │              │
-               ▼                 ▼              ▼
-┌──────────────┴─────┐  ┌───────┴──────┐  ┌─────┴──────────┐
-│   Auth Service     │  │  AI Engine   │  │ Matching      │
-│   (Role-based)     │  │  (ML/AI)     │  │  Service       │
-└──────────┬─────────┘  └───────┬──────┘  └──────┬─────────┘
-           │                    │                 │
-           └────────────────────┼─────────────────┘
+│  Уровень 1: Пользовательский интерфейс                      │
+│  • Web приложение (Vue 3)                                   │
+│  • Мобильное PWA                                            │
+│  • Telegram бот                                             │
+│  • API для министерств                                      │
+└──────────────────────────────┬──────────────────────────────┘
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                   Интеграции и данные                        │
-├──────────┬──────────┬──────────┬──────────┬─────────────────┤
-│ HH.ru API│LinkedIn  │Платежи   │Email/SMS │   Хранилище     │
-│          │API       │Gateway   │Services  │   данных        │
-└──────────┴──────────┴──────────┴──────────┴─────────────────┘
+│        Уровень 2: Бизнес-логика и AI движок                 │
+├─────────────────────────────────────────────────────────────┤
+│  Сервис тестирования │ Сервис парсинга │ Сервис сопоставления│
+│  • Адаптивные тесты  │ • HH.ru парсер  │ • AI матчинг        │
+│  • DeepSeek API      │ • Фильтрация    │ • Рекомендации      │
+│  • Оценка уровня     │ • Классификация │ • Приоритизация     │
+└──────────────────────────────┬──────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────┐
+│            Уровень 3: Данные и интеграции                   │
+├─────────────────────────────────────────────────────────────┤
+│  PostgreSQL │ Redis  │ MinIO │ RabbitMQ │ Внешние API       │
+│  • Профили  │ • Кэш  │• Файлы│• Очереди │• DeepSeek         │
+│  • Результаты│ • Сессии│• Резюме│• Задачи  │• HH.ru          │
+│  • Вакансии │ • Тесты│• Логи │• Нотификации│• Министерства  │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ## 📁 Структура проекта
 
-### Корневая структура
 ```
-career_ai_assistant/
+ai_career_scout/
 │
-├── backend/                    # Основной бэкенд
+├── backend/
 │   ├── app/
+│   │   ├── core/
+│   │   │   ├── config.py
+│   │   │   ├── security.py
+│   │   │   └── dependencies.py
+│   │   │
 │   │   ├── api/
-│   │   │   ├── seekers/       # API для соискателей
-│   │   │   │   ├── auth.py
-│   │   │   │   ├── resumes.py
-│   │   │   │   ├── vacancies.py
-│   │   │   │   ├── chat.py
-│   │   │   │   └── analytics.py
-│   │   │   ├── hr/           # API для HR
-│   │   │   │   ├── auth.py
-│   │   │   │   ├── candidates.py
-│   │   │   │   ├── vacancies.py
-│   │   │   │   └── analytics.py
-│   │   │   └── common/       # Общие API
-│   │   │       ├── files.py
-│   │   │       └── integrations.py
+│   │   │   ├── v1/
+│   │   │   │   ├── auth/
+│   │   │   │   │   ├── routes.py
+│   │   │   │   │   └── schemas.py
+│   │   │   │   │
+│   │   │   │   ├── resumes/
+│   │   │   │   │   ├── routes.py
+│   │   │   │   │   ├── services.py
+│   │   │   │   │   └── parsers.py
+│   │   │   │   │
+│   │   │   │   ├── testing/
+│   │   │   │   │   ├── routes.py
+│   │   │   │   │   ├── adapters.py
+│   │   │   │   │   └── evaluators.py
+│   │   │   │   │
+│   │   │   │   ├── vacancies/
+│   │   │   │   │   ├── routes.py
+│   │   │   │   │   ├── parsers.py
+│   │   │   │   │   ├── filters.py
+│   │   │   │   │   └── matchers.py
+│   │   │   │   │
+│   │   │   │   ├── matches/
+│   │   │   │   │   ├── routes.py
+│   │   │   │   │   └── recommenders.py
+│   │   │   │   │
+│   │   │   │   └── ministries/
+│   │   │   │       ├── federal/
+│   │   │   │       │   ├── routes.py
+│   │   │   │       │   └── integrations.py
+│   │   │   │       │
+│   │   │   │       └── moscow/
+│   │   │   │           ├── routes.py
+│   │   │   │           └── integrations.py
+│   │   │   │
+│   │   │   └── websocket/
+│   │   │       └── testing.py
+│   │   │
 │   │   ├── models/
-│   │   │   ├── seekers.py    # Модели для соискателей
-│   │   │   ├── hr.py         # Модели для HR
-│   │   │   └── common.py     # Общие модели
-│   │   └── services/
-│   │       ├── ai/
-│   │       │   ├── resume_analyzer.py      # Анализ резюме
-│   │       │   ├── vacancy_matcher.py      # Сопоставление
-│   │       │   ├── interview_trainer.py    # Подготовка к собеседованиям
-│   │       │   └── candidate_evaluator.py  # Оценка кандидатов
-│   │       └── integrations/
-│   │           ├── hh_api.py          # HH.ru интеграция
-│   │           ├── linkedin_api.py    # LinkedIn интеграция
-│   │           └── payment_gateways.py # Платежные системы
-│
-├── frontend/                  # Фронтенд приложения
-│   ├── seekers/              # Приложение для соискателей
-│   │   ├── src/
-│   │   │   ├── views/
-│   │   │   │   ├── Dashboard.vue      # Личный кабинет
-│   │   │   │   ├── ResumeAnalysis.vue # Анализ резюме
-│   │   │   │   ├── JobSearch.vue      # Поиск вакансий
-│   │   │   │   ├── InterviewPrep.vue  # Подготовка
-│   │   │   │   └── Settings.vue       # Настройки
-│   │   │   └── components/
-│   │   │       ├── ResumeUploader.vue
-│   │   │       ├── JobCard.vue
-│   │   │       ├── MatchScore.vue
-│   │   │       └── ChatAssistant.vue
-│   │   └── package.json
+│   │   │   ├── user.py
+│   │   │   ├── resume.py
+│   │   │   ├── test_result.py
+│   │   │   ├── vacancy.py
+│   │   │   └── match.py
+│   │   │
+│   │   ├── services/
+│   │   │   ├── deepseek/
+│   │   │   │   ├── client.py
+│   │   │   │   ├── test_generator.py
+│   │   │   │   └── evaluator.py
+│   │   │   │
+│   │   │   ├── hh_ru/
+│   │   │   │   ├── client.py
+│   │   │   │   ├── parser.py
+│   │   │   │   └── quality_filter.py
+│   │   │   │
+│   │   │   ├── matching/
+│   │   │   │   ├── skill_matcher.py
+│   │   │   │   ├── vacancy_ranker.py
+│   │   │   │   └── recommender.py
+│   │   │   │
+│   │   │   └── notification/
+│   │   │       ├── email_service.py
+│   │   │       ├── telegram_bot.py
+│   │   │       └── push_service.py
+│   │   │
+│   │   └── workers/
+│   │       ├── vacancy_parser.py
+│   │       ├── test_evaluator.py
+│   │       └── match_generator.py
 │   │
-│   ├── hr/                   # Приложение для HR
-│   │   ├── src/
-│   │   │   ├── views/
-│   │   │   │   ├── Dashboard.vue      # Аналитика
-│   │   │   │   ├── Candidates.vue     # Кандидаты
-│   │   │   │   ├── Vacancies.vue      # Вакансии
-│   │   │   │   ├── Reports.vue        # Отчеты
-│   │   │   │   └── CompanySettings.vue
-│   │   │   └── components/
-│   │   │       ├── CandidateTable.vue
-│   │   │       ├── VacancyForm.vue
-│   │   │       ├── ResumeAnalyzer.vue
-│   │   │       └── AnalyticsDashboard.vue
-│   │   └── package.json
+│   ├── alembic/
+│   ├── tests/
+│   └── docker-compose.yml
+│
+├── frontend/
+│   ├── src/
+│   │   ├── views/
+│   │   │   ├── Auth/
+│   │   │   │   ├── Login.vue
+│   │   │   │   └── Register.vue
+│   │   │   │
+│   │   │   ├── Dashboard/
+│   │   │   │   ├── Overview.vue
+│   │   │   │   └── Profile.vue
+│   │   │   │
+│   │   │   ├── Testing/
+│   │   │   │   ├── StartTest.vue
+│   │   │   │   ├── TestSession.vue
+│   │   │   │   └── Results.vue
+│   │   │   │
+│   │   │   ├── Vacancies/
+│   │   │   │   ├── Search.vue
+│   │   │   │   ├── List.vue
+│   │   │   │   └── Details.vue
+│   │   │   │
+│   │   │   ├── Matches/
+│   │   │   │   ├── Recommendations.vue
+│   │   │   │   ├── Applied.vue
+│   │   │   │   └── Statistics.vue
+│   │   │   │
+│   │   │   └── Ministry/
+│   │   │       ├── FederalPortal.vue
+│   │   │       └── MoscowPortal.vue
+│   │   │
+│   │   ├── components/
+│   │   │   ├── common/
+│   │   │   ├── testing/
+│   │   │   └── vacancies/
+│   │   │
+│   │   ├── composables/
+│   │   ├── stores/
+│   │   └── router/
 │   │
-│   └── landing/              # Лендинг и общая информация
-│       ├── src/
-│       │   ├── pages/
-│       │   │   ├── Home.vue           # Главная
-│       │   │   ├── ForSeekers.vue     # Для соискателей
-│       │   │   ├── ForCompanies.vue   # Для компаний
-│       │   │   ├── Pricing.vue        # Цены
-│       │   │   └── Blog.vue           # Блог
-│       │   └── components/
-│       │       ├── HeroSection.vue
-│       │       ├── FeatureCards.vue
-│       │       └── Testimonials.vue
-│       └── package.json
+│   ├── public/
+│   └── package.json
 │
-├── ml_pipeline/              # ML модели и AI
-│   ├── models/
-│   │   ├── resume_parser/    # Парсинг резюме
-│   │   ├── skill_matcher/    # Сопоставление навыков
-│   │   ├── interview_sim/    # Симулятор собеседований
-│   │   └── success_predictor/# Прогноз успеха
-│   ├── training/
-│   │   ├── datasets/         # Датасеты
-│   │   ├── scripts/          # Скрипты обучения
-│   │   └── evaluation/       # Оценка моделей
-│   └── deployment/           # Деплой моделей
+├── mobile-pwa/
+│   ├── manifest.json
+│   └── service-worker.js
 │
-├── docs/                     # Документация
-│   ├── api/
-│   │   ├── seekers_api.md    # API для соискателей
-│   │   ├── hr_api.md         # API для HR
-│   │   └── integration_api.md
-│   ├── user-guides/
-│   │   ├── seekers_guide.md  # Руководство для соискателей
-│   │   ├── hr_guide.md       # Руководство для HR
-│   │   └── admin_guide.md    # Администраторам
-│   └── development/
-│       ├── architecture.md
-│       ├── deployment.md
-│       └── contributing.md
+├── telegram-bot/
+│   ├── bot.py
+│   └── handlers/
 │
-├── docker-compose.yml
-├── .env.example
-└── README.md
+├── ministry-integrations/
+│   ├── federal/
+│   └── moscow/
+│
+├── infrastructure/
+│   ├── k8s/
+│   ├── prometheus/
+│   └── nginx/
+│
+└── docs/
+    ├── api/
+    ├── user-guides/
+    └── integration/
 ```
 
-## 🔧 Компоненты системы
+## 🔧 Микросервисная архитектура
 
-### 1. Backend Services
-
-#### API Gateway:
-- **Роутинг запросов** в зависимости от типа пользователя
-- **Аутентификация и авторизация** с ролевой моделью
-- **Rate limiting** по тарифам
-
-#### Для соискателей:
+### Сервис 1: Auth & Profile Service
 ```python
-POST   /api/v1/seekers/auth/register       # Регистрация
-POST   /api/v1/seekers/resumes/upload      # Загрузка резюме
-GET    /api/v1/seekers/vacancies/search    # Поиск вакансий
-POST   /api/v1/seekers/vacancies/{id}/apply # Отклик
-GET    /api/v1/seekers/analytics/progress  # Прогресс
-POST   /api/v1/seekers/chat/message        # AI-чат
+POST   /api/v1/auth/register        # Регистрация
+POST   /api/v1/auth/login           # Вход
+POST   /api/v1/auth/refresh         # Обновление токена
+GET    /api/v1/profile              # Получить профиль
+PUT    /api/v1/profile              # Обновить профиль
+POST   /api/v1/resumes              # Загрузить резюме
+GET    /api/v1/resumes/{id}         # Получить резюме
 ```
 
-#### Для HR:
+### Сервис 2: Testing Service
 ```python
-POST   /api/v1/hr/auth/register            # Регистрация компании
-POST   /api/v1/hr/vacancies                # Создание вакансии
-GET    /api/v1/hr/candidates               # Поиск кандидатов
-POST   /api/v1/hr/candidates/{id}/evaluate # Оценка кандидата
-GET    /api/v1/hr/analytics/hiring         # Аналитика найма
-POST   /api/v1/hr/candidates/bulk-upload   # Массовая загрузка
+POST   /api/v1/testing/start        # Начать тестирование
+GET    /api/v1/testing/{session_id} # Статус теста
+POST   /api/v1/testing/{session_id}/answer # Ответить
+POST   /api/v1/testing/{session_id}/finish # Завершить
+GET    /api/v1/testing/results      # Получить результаты
 ```
 
-### 2. AI Engine Components
-
-#### Resume Analyzer:
+### Сервис 3: Vacancy Service
 ```python
-class ResumeAnalyzer:
-    def parse_resume(file):           # Парсинг резюме
-    def extract_skills(text):         # Извлечение навыков
-    def evaluate_quality(resume):     # Оценка качества
-    def suggest_improvements(resume): # Рекомендации по улучшению
-    
-    # Для HR:
-    def batch_analyze(resumes):       # Массовый анализ
-    def find_red_flags(resume):       # Поиск проблем
-    def rank_candidates(resumes, vacancy): # Ранжирование
+GET    /api/v1/vacancies/search     # Поиск вакансий
+GET    /api/v1/vacancies/{id}       # Детали вакансии
+POST   /api/v1/vacancies/sync       # Запустить синхронизацию
+GET    /api/v1/vacancies/stats      # Статистика
 ```
 
-#### Interview Simulator:
+### Сервис 4: Matching Service
 ```python
-class InterviewSimulator:
-    def generate_questions(vacancy):  # Генерация вопросов
-    def evaluate_answer(answer):      # Оценка ответов
-    def provide_feedback():           # Обратная связь
-    def simulate_interview():         # Полная симуляция
+POST   /api/v1/matches/generate     # Сгенерировать рекомендации
+GET    /api/v1/matches/recommended  # Получить рекомендации
+POST   /api/v1/matches/{id}/apply   # Откликнуться на вакансию
+GET    /api/v1/matches/status       # Статусы откликов
 ```
 
-### 3. Database Schema
+### Сервис 5: Ministry Integration Service
+```python
+# Федеральное министерство
+POST   /api/v1/ministry/federal/bulk-register # Массовая регистрация
+GET    /api/v1/ministry/federal/statistics    # Статистика
+POST   /api/v1/ministry/federal/reports       # Отчеты
+
+# Московское министерство  
+GET    /api/v1/ministry/moscow/vacancies      # Московские вакансии
+POST   /api/v1/ministry/moscow/apply-special  # Специальные программы
+GET    /api/v1/ministry/moscow/career-centers # Карьерные центры
+```
+
+## 🗄️ Модели базы данных
 
 ```sql
--- Пользователи
+-- Основные таблицы
 CREATE TABLE users (
-    id UUID PRIMARY KEY,
-    email VARCHAR(255) UNIQUE,
-    user_type VARCHAR(20) CHECK (user_type IN ('seeker', 'hr', 'admin')),
-    subscription_tier VARCHAR(50),
-    created_at TIMESTAMP
-);
-
--- Соискатели
-CREATE TABLE seekers (
-    user_id UUID REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(255),
-    current_position VARCHAR(255),
-    experience_years INTEGER,
-    skills TEXT[],
-    job_preferences JSONB,
-    search_status VARCHAR(50)
+    user_type VARCHAR(50) NOT NULL DEFAULT 'professional',
+    ministry_type VARCHAR(50) CHECK (ministry_type IN ('federal', 'moscow', NULL)),
+    institute_id VARCHAR(100),
+    subscription_tier VARCHAR(50) DEFAULT 'free',
+    test_level VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Компании и HR
-CREATE TABLE companies (
-    id UUID PRIMARY KEY,
-    name VARCHAR(255),
-    industry VARCHAR(100),
-    size VARCHAR(50),
-    subscription_tier VARCHAR(50)
-);
-
-CREATE TABLE hr_users (
-    user_id UUID REFERENCES users(id),
-    company_id UUID REFERENCES companies(id),
-    role VARCHAR(50),
-    permissions JSONB
-);
-
--- Резюме
 CREATE TABLE resumes (
-    id UUID PRIMARY KEY,
-    owner_type VARCHAR(20),
-    owner_id UUID,
-    original_file VARCHAR(500),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    original_filename VARCHAR(500),
+    file_path VARCHAR(500),
+    file_size INTEGER,
     parsed_data JSONB,
-    skills TEXT[],
-    is_public BOOLEAN DEFAULT false,
-    created_at TIMESTAMP
+    extracted_skills TEXT[],
+    experience_years INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Вакансии
+CREATE TABLE test_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    test_type VARCHAR(50) NOT NULL,
+    questions JSONB NOT NULL,
+    answers JSONB,
+    score DECIMAL(5,2),
+    level_assessment JSONB,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'in_progress'
+);
+
 CREATE TABLE vacancies (
-    id UUID PRIMARY KEY,
-    company_id UUID REFERENCES companies(id),
-    title VARCHAR(500),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    hh_id VARCHAR(100) UNIQUE,
+    title VARCHAR(500) NOT NULL,
+    company_name VARCHAR(255),
+    description TEXT,
     requirements JSONB,
-    status VARCHAR(50),
-    source VARCHAR(50)
+    salary_from INTEGER,
+    salary_to INTEGER,
+    currency VARCHAR(10),
+    location VARCHAR(255),
+    experience_required VARCHAR(50),
+    employment_type VARCHAR(50),
+    is_quality BOOLEAN DEFAULT FALSE,
+    quality_score DECIMAL(3,2),
+    ministry_affiliated BOOLEAN DEFAULT FALSE,
+    scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP
 );
 
--- Сопоставления
 CREATE TABLE matches (
-    id UUID PRIMARY KEY,
-    vacancy_id UUID REFERENCES vacancies(id),
-    resume_id UUID REFERENCES resumes(id),
-    match_score DECIMAL(5,2),
-    status VARCHAR(50),
-    predicted_success DECIMAL(3,2),
-    created_at TIMESTAMP
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    vacancy_id UUID REFERENCES vacancies(id) ON DELETE CASCADE,
+    match_score DECIMAL(5,2) NOT NULL,
+    score_breakdown JSONB,
+    status VARCHAR(50) DEFAULT 'recommended',
+    applied_at TIMESTAMP,
+    response_received BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-```
 
-## 🌐 Сетевая архитектура
-
-```
-Пользователи → Cloudflare CDN → Load Balancer → 
-→ [Frontend: Seekers App]    [Frontend: HR App]    [Landing]
-          ↓                        ↓                   ↓
-    ┌─────────────────────────────────────────────┐
-    │              API Gateway (Kong)             │
-    └──────────────┬──────────────┬──────────────┘
-                   │              │
-           [Seekers API]    [HR API]
-                   │              │
-    ┌──────────────┴──────────────┴──────────────┐
-    │            Микросервисы                     │
-    ├──────────┬──────────┬──────────┬───────────┤
-    │   Auth   │   AI     │ Matching │ Integra-  │
-    │ Service  │ Engine   │ Service  │ tions     │
-    └──────────┴──────────┴──────────┴───────────┘
-                   │              │
-    ┌──────────────┴──────────────┴──────────────┐
-    │              Базы данных                    │
-    ├──────────┬──────────┬──────────┬───────────┤
-    │PostgreSQL│  Redis   │  MinIO   │ RabbitMQ  │
-    │ Primary  │ (Кэш)    │(Файлы)   │(Очереди)  │
-    └──────────┴──────────┴──────────┴───────────┘
+-- Индексы для производительности
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_ministry ON users(ministry_type) WHERE ministry_type IS NOT NULL;
+CREATE INDEX idx_vacancies_quality ON vacancies(is_quality, quality_score);
+CREATE INDEX idx_vacancies_location ON vacancies(location);
+CREATE INDEX idx_matches_user_status ON matches(user_id, status);
+CREATE INDEX idx_matches_score ON matches(match_score DESC);
 ```
 
 ## 🔄 Потоки данных
 
-### Поток для соискателя:
+### Стандартный поток соискателя:
 ```
-1. Регистрация → Создание профиля → Загрузка резюме
-2. AI анализирует резюме → Предлагает улучшения
-3. Поиск вакансий → AI ранжирует по релевантности
-4. Адаптация резюме под вакансию → Автоотклик
-5. Подготовка к собеседованию → AI симуляция
-6. Отслеживание прогресса → Аналитика
+1. Регистрация → Загрузка резюме → Анализ навыков
+2. Адаптивное тестирование → Определение уровня
+3. AI-поиск на HH.ru → Фильтрация качества
+4. Сопоставление навыков → Топ-10 рекомендаций
+5. Выбор вакансий → Автоотклик → Трекинг
 ```
 
-### Поток для HR:
+### Поток студента министерства:
 ```
-1. Регистрация компании → Настройка профиля
-2. Создание вакансии → AI анализ требований
-3. Поиск кандидатов → AI фильтрация и ранжирование
-4. Массовый анализ резюме → Выявление лучших
-5. Оценка кандидатов → Прогноз успешности
-6. Аналитика процесса → Оптимизация найма
+1. Массовая регистрация через институт
+2. Приоритетный доступ к стажировкам
+3. Специальное тестирование с учетом программы
+4. Рекомендации от партнерских компаний
+5. Отслеживание трудоустройства вендором
 ```
 
 ## 🚀 Стратегия развертывания
 
-### Фаза 1: MVP (0-3 месяца)
-- Фокус на соискателей
-- Базовый функционал анализа резюме
-- Интеграция только с HH.ru
-- Простая подписка
+### Фаза 1: MVP (1-2 месяца)
+- Базовый парсинг HH.ru
+- Простое тестирование
+- Веб-интерфейс
+- 500 тестовых пользователей
 
-### Фаза 2: Расширение (3-6 месяцев)
-- Добавление HR модуля
-- Расширение AI возможностей
-- Интеграция с LinkedIn
-- Раздельные тарифы
+### Фаза 2: Расширение (2-4 месяца)
+- AI-фильтрация вакансий
+- Адаптивное тестирование
+- Telegram бот
+- Интеграция с 1 министерством
 
-### Фаза 3: Масштабирование (6-12 месяцев)
-- Enterprise решения
-- White-label для рекрутинговых агентств
-- Расширение на СНГ
-- Мобильные приложения
-
-## 📈 Мониторинг и аналитика
-
-### Метрики для мониторинга:
-1. **Для соискателей:**
-   - Конверсия регистраций в активных пользователей
-   - Среднее время анализа резюме
-   - Успешность откликов
-   - Удовлетворенность AI-чат
-
-2. **Для HR:**
-   - Количество обработанных резюме
-   - Время на подбор одного кандидата
-   - Качество AI рекомендаций
-   - Retention корпоративных клиентов
-
-3. **Системные:**
-   - Uptime > 99.5%
-   - API response time p95 < 2s
-   - Ошибки обработки файлов < 1%
-
-### Логирование:
-- Раздельные логи для seeker и HR операций
-- Детальное логирование AI-решений
-- Аудиторские логи для корпоративных клиентов
-- Интеграция с Sentry для ошибок
-
-Теперь продукт четко позиционируется как **двусторонняя платформа** с отдельными функциональностями для:
-1. **Соискателей** - поиск работы, улучшение резюме, подготовка
-2. **HR/компаний** - подбор кандидатов, автоматизация рекрутинга, аналитика
-
-Каждый модуль имеет свою ценность и отдельный пользовательский опыт, но использует общий AI-движок и инфраструктуру.
+### Фаза 3: Масштабирование (4-6 месяцев)
+- Полная интеграция с федеральным и московским министерствами
+- Мобильное PWA
+- Расширенная аналитика
+- 10 000+ активных пользователей

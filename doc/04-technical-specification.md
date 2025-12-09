@@ -1,75 +1,77 @@
-# Техническая спецификация
+# Техническая спецификация: AI Career Scout
 
 ## 📋 Общие сведения
 
-**Название проекта:** AI HR Assistant  
-**Версия спецификации:** 1.0  
-**Дата:** Q1 2024  
-**Целевая платформа:** Web (десктоп и мобильные браузеры)  
-**Архитектура:** Микросервисная, контейнеризированная
+**Название проекта:** AI Career Scout  
+**Версия спецификации:** 2.0  
+**Дата:** Q4 2024  
+**Целевые платформы:** Web, PWA, Telegram, API  
+**Архитектура:** Микросервисная на базе событий
 
 ## 🛠️ Технологический стек
 
-### Backend
+### AI & ML слой
 | Компонент | Технология | Версия | Назначение |
 |-----------|------------|---------|------------|
-| Основной фреймворк | FastAPI | 0.104+ | REST API |
-| Язык программирования | Python | 3.11+ | Бэкенд логика |
-| ORM | SQLAlchemy | 2.0+ | Работа с БД |
-| Миграции | Alembic | 1.12+ | Миграции схемы БД |
-| Аутентификация | JWT |  | Токены доступа |
-| Валидация | Pydantic | 2.4+ | Валидация данных |
-| Асинхронность | async/await |  | Асинхронные операции |
-| HTTP клиент | httpx | 0.25+ | Внешние запросы |
-| PDF обработка | PyPDF2 | 3.0+ | Чтение PDF |
-| DOCX обработка | python-docx | 0.8+ | Чтение DOCX |
+| Основной AI движок | DeepSeek API | 3.2 | Генерация тестов, оценка |
+| Fine-tuning | DeepSeek Fine-tuning API | Latest | Кастомизация под вакансии |
+| NLP обработка | spaCy + NLTK | 3.7+ | Анализ резюме и вакансий |
+| Классификация | scikit-learn | 1.3+ | Фильтрация вакансий |
+| Векторные эмбеддинги | sentence-transformers | 2.2+ | Семантический поиск |
 
-### Frontend
-| Компонент | Технология | Версия | Назначение |
-|-----------|------------|---------|------------|
-| Фреймворк | Vue.js | 3.3+ | SPA приложение |
-| Сборщик | Vite | 4.4+ | Сборка проекта |
-| UI библиотека | Element Plus | 2.3+ | Компоненты интерфейса |
-| State management | Pinia | 2.1+ | Управление состоянием |
-| HTTP клиент | Axios | 1.5+ | Запросы к API |
-| Роутинг | Vue Router | 4.2+ | Навигация |
-| Чарты | Chart.js | 4.3+ | Визуализация данных |
-| Экспорт Excel | xlsx | 0.18+ | Генерация Excel |
+### Backend сервисы
+| Сервис | Технология | Назначение |
+|--------|------------|------------|
+| API Gateway | FastAPI + Kong | Единая точка входа |
+| Auth Service | FastAPI + JWT | Аутентификация |
+| Testing Service | FastAPI + WebSocket | Адаптивное тестирование |
+| Vacancy Service | FastAPI + Celery | Парсинг и обработка |
+| Matching Service | FastAPI + Redis | Рекомендации |
+| Ministry Service | FastAPI | Интеграции с гос.системами |
 
 ### Базы данных и хранилища
-| Компонент | Технология | Версия | Назначение |
-|-----------|------------|---------|------------|
-| Основная БД | PostgreSQL | 15+ | Основное хранилище |
-| Кэш | Redis | 7.2+ | Сессии, кэширование |
-| Файловое хранилище | MinIO | Latest | Хранение файлов |
-| Очереди | RabbitMQ | 3.12+ | Асинхронные задачи |
+| Тип | Технология | Конфигурация | Назначение |
+|-----|------------|--------------|------------|
+| Основная БД | PostgreSQL 16 | 3 ноды, репликация | Пользователи, вакансии |
+| Кэш | Redis 7.2 | Кластер 6 нод | Сессии, результаты |
+| Поиск | Elasticsearch 8.11 | 3 ноды | Поиск по вакансиям |
+| Файлы | MinIO | S3-совместимое | Резюме, логи |
+| Очереди | RabbitMQ 4.0 | Кластер | Асинхронные задачи |
 
-### Инфраструктура
-| Компонент | Технология | Версия | Назначение |
-|-----------|------------|---------|------------|
-| Контейнеризация | Docker | 24.0+ | Контейнеры |
-| Оркестрация | Docker Compose | 2.20+ | Локальная разработка |
-| CI/CD | GitHub Actions |  | Автоматизация |
-| Реверс-прокси | Nginx | 1.24+ | Проксирование |
-| Мониторинг | Prometheus | 2.47+ | Метрики |
-| Визуализация | Grafana | 10.1+ | Дашборды |
-| Логирование | Loki | 2.9+ | Централизованные логи |
+### Frontend
+| Платформа | Технология | Особенности |
+|-----------|------------|-------------|
+| Web | Vue 3 + TypeScript | SPA с SSR |
+| Мобильное | PWA (Vue + Capacitor) | Оффлайн режим |
+| Telegram | Node.js + Telegraf | Уведомления, быстрый доступ |
+| Админка | Vue 3 + Naive UI | Управление системой |
+
+### DevOps & Инфраструктура
+| Категория | Технологии |
+|-----------|------------|
+| Контейнеризация | Docker 24.0+, Kubernetes 1.28 |
+| CI/CD | GitLab CI/CD, ArgoCD |
+| Мониторинг | Prometheus, Grafana, Loki, Tempo |
+| Логирование | ELK Stack (Elastic, Logstash, Kibana) |
+| Хостинг | Yandex Cloud Managed Kubernetes |
+| CDN | Cloudflare + Yandex CDN |
 
 ## 📊 API Спецификация
 
-### Общие принципы:
-- **Базовый URL**: `https://api.hr-assistant.example.com/api/v1`
-- **Формат данных**: JSON для всех запросов и ответов
-- **Аутентификация**: Bearer JWT токен
-- **Коды ответов**: стандартные HTTP коды
-- **Версионирование**: в URL пути
+### Базовые параметры:
+- **Базовый URL:** `https://api.career-scout.ru/api/v1`
+- **Формат:** JSON для запросов/ответов
+- **Аутентификация:** Bearer JWT + API Keys для министерств
+- **Rate limiting:** Зависит от подписки (100-10000 запросов/час)
 
-### Основные эндпоинты:
+### Ключевые эндпоинты:
 
-#### Аутентификация
+#### Адаптивное тестирование
 ```yaml
-POST /auth/register:
-  summary: Регистрация нового пользователя
+POST /testing/start:
+  summary: Начать адаптивное тестирование
+  security:
+    - bearerAuth: []
   requestBody:
     required: true
     content:
@@ -77,89 +79,32 @@ POST /auth/register:
         schema:
           type: object
           properties:
-            email:
+            test_type:
               type: string
-              format: email
-            password:
+              enum: [technical, soft_skills, combined]
+            resume_id:
               type: string
-              minLength: 8
-            full_name:
-              type: string
+              format: uuid
   responses:
     201:
-      description: Пользователь создан
-    400:
-      description: Неверные данные
-    409:
-      description: Пользователь уже существует
-
-POST /auth/login:
-  summary: Вход в систему
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          type: object
-          properties:
-            email:
-              type: string
-            password:
-              type: string
-  responses:
-    200:
-      description: Успешный вход
+      description: Сессия тестирования создана
       content:
         application/json:
           schema:
             type: object
             properties:
-              access_token:
+              session_id:
                 type: string
-              refresh_token:
+                format: uuid
+              websocket_url:
                 type: string
-              user:
-                $ref: '#/components/schemas/User'
-    401:
-      description: Неверные учетные данные
-```
-
-#### Резюме
-```yaml
-POST /resumes/upload:
-  summary: Загрузить резюме
-  security:
-    - bearerAuth: []
-  requestBody:
-    required: true
-    content:
-      multipart/form-data:
-        schema:
-          type: object
-          properties:
-            file:
-              type: string
-              format: binary
-            title:
-              type: string
-            is_primary:
-              type: boolean
-  responses:
-    201:
-      description: Резюме загружено
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Resume'
     400:
-      description: Неверный формат файла
+      description: Неверные параметры теста
 
-GET /resumes/{resume_id}:
-  summary: Получить резюме по ID
-  security:
-    - bearerAuth: []
+GET /testing/{session_id}/next:
+  summary: Получить следующий вопрос
   parameters:
-    - name: resume_id
+    - name: session_id
       in: path
       required: true
       schema:
@@ -167,104 +112,239 @@ GET /resumes/{resume_id}:
         format: uuid
   responses:
     200:
-      description: Данные резюме
+      description: Вопрос для тестирования
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Resume'
+            type: object
+            properties:
+              question_id:
+                type: string
+              question_type:
+                type: string
+              question_text:
+                type: string
+              options:
+                type: array
+                items:
+                  type: string
+              time_limit:
+                type: integer
     404:
-      description: Резюме не найдено
+      description: Сессия не найдена
 ```
 
-## 🗄️ Модели данных
-
-### User (Пользователь)
-```python
-class User(Base):
-    __tablename__ = "users"
-    
-    id = Column(UUID, primary_key=True, default=uuid.uuid4)
-    email = Column(String(255), unique=True, nullable=False)
-    password_hash = Column(String(255), nullable=False)
-    full_name = Column(String(255))
-    phone = Column(String(50))
-    location = Column(String(255))
-    subscription_tier = Column(String(50), default="free")
-    subscription_ends_at = Column(DateTime)
-    is_active = Column(Boolean, default=True)
-    is_verified = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    resumes = relationship("Resume", back_populates="user")
-    applications = relationship("Application", back_populates="user")
+#### Умный поиск вакансий
+```yaml
+POST /vacancies/search:
+  summary: Поиск персональных вакансий
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            test_session_id:
+              type: string
+              format: uuid
+            filters:
+              type: object
+              properties:
+                locations:
+                  type: array
+                  items:
+                    type: string
+                salary_min:
+                  type: integer
+                remote_only:
+                  type: boolean
+                experience_level:
+                  type: string
+                  enum: [junior, middle, senior]
+  responses:
+    200:
+      description: Найденные вакансии
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              vacancies:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vacancy'
+              search_metadata:
+                type: object
+                properties:
+                  total_found:
+                    type: integer
+                  quality_score:
+                    type: number
+                  search_time:
+                    type: number
 ```
 
-### Resume (Резюме)
-```python
-class Resume(Base):
-    __tablename__ = "resumes"
-    
-    id = Column(UUID, primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID, ForeignKey("users.id"), nullable=False)
-    title = Column(String(255))
-    original_filename = Column(String(500))
-    file_path = Column(String(500))
-    file_size = Column(Integer)
-    file_type = Column(String(50))
-    
-    # Парсированные данные
-    parsed_data = Column(JSONB)
-    raw_text = Column(Text)
-    
-    # Извлеченные поля
-    full_name = Column(String(255))
-    email = Column(String(255))
-    phone = Column(String(50))
-    experience_years = Column(Integer)
-    skills = Column(ARRAY(String))
-    education = Column(JSONB)
-    work_experience = Column(JSONB)
-    
-    # Флаги
-    is_primary = Column(Boolean, default=False)
-    is_public = Column(Boolean, default=False)
-    
-    # Metadata
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    user = relationship("User", back_populates="resumes")
-    matches = relationship("MatchResult", back_populates="resume")
+#### Интеграция с министерствами
+```yaml
+POST /ministry/federal/bulk:
+  summary: Массовая регистрация студентов
+  security:
+    - apiKeyAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            institute_id:
+              type: string
+            students:
+              type: array
+              items:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  full_name:
+                    type: string
+                  student_id:
+                    type: string
+                  program:
+                    type: string
+  responses:
+    202:
+      description: Регистрация принята в обработку
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              job_id:
+                type: string
+              estimated_time:
+                type: integer
 ```
 
-## 🔐 Безопасность
+## 🔐 Безопасность и соответствие
 
-### Аутентификация
-- JWT токены с expiry 24 часа
-- Refresh токены с expiry 30 дней
-- Хэширование паролей с bcrypt
+### Модель безопасности:
+```
+Уровень 1: Пользовательский (JWT токены)
+Уровень 2: Сервисный (API Keys между микросервисами)
+Уровень 3: Министерский (mTLS + специфичные ключи)
+Уровень 4: Административный (OAuth 2.0 + 2FA)
+```
 
-### Авторизация
-- Ролевая модель: user, premium_user, admin
-- Права доступа к ресурсам
-- Проверка владения ресурсом
+### Соответствие требованиям:
+1. **152-ФЗ РФ** - обработка персональных данных
+2. **GDPR** - для международных пользователей
+3. **API HH.ru** - соблюдение лимитов и правил
+4. **Гос.стандарты** - для интеграции с министерствами
 
-### Защита данных
-- HTTPS для всех соединений
-- Шифрование чувствительных данных в БД
-- Регулярные security аудиты
-- Защита от инъекций и XSS
+### Шифрование данных:
+```yaml
+В движении:
+  - TLS 1.3 для всех соединений
+  - Сертификаты от Let's Encrypt + Yandex Cloud
 
-### Лимиты запросов
+В покое:
+  - AES-256 для персональных данных
+  - База данных: прозрачное шифрование
+  - Файлы: шифрование на стороне клиента
+```
+
+## 📈 Масштабируемость
+
+### Горизонтальное масштабирование:
+```yaml
+Микросервисы:
+  testing-service: 3-10 реплик (в зависимости от нагрузки)
+  vacancy-service: 5-15 реплик (парсинг тяжелый)
+  matching-service: 3-8 реплик
+  api-gateway: 2-5 реплик
+
+Базы данных:
+  PostgreSQL: Master + 2 Replicas (чтение)
+  Redis: Cluster 6 нод (3 master, 3 replica)
+  Elasticsearch: 3 ноды (поиск)
+```
+
+### Auto-scaling правила:
+```yaml
+По CPU:
+  - Средняя загрузка > 70% → +1 реплика
+  - Средняя загрузка < 30% → -1 реплика
+
+По памяти:
+  - Использование > 80% → +1 реплика
+
+По времени:
+  - Пиковые часы (10:00-12:00, 14:00-16:00) → дополнительные реплики
+```
+
+## 🧪 Тестирование и качество
+
+### Типы тестов:
 ```python
-# Rate limiting конфигурация
-RATE_LIMITS = {
-    "anonymous": "100/hour",
-    "authenticated": "1000/hour",
-    "premium": "5000/hour",
-    "admin": "10000/hour"
-}
+# Unit тесты - покрытие > 90%
+pytest tests/unit/
+
+# Интеграционные тесты
+pytest tests/integration/
+
+# E2E тесты (Playwright)
+npm run test:e2e
+
+# Нагрузочное тестирование (Locust)
+locust -f tests/load/locustfile.py
+
+# Безопасность (OWASP ZAP)
+zap-baseline.py -t https://api.career-scout.ru
+```
+
+### Метрики качества:
+- **Availability:** 99.95% SLA
+- **P95 Latency:** < 2 секунды
+- **Error rate:** < 0.1%
+- **Test coverage:** > 85%
+- **MTTR:** < 15 минут
+
+## 🚀 Деплой и CI/CD
+
+### Pipeline этапы:
+```yaml
+stages:
+  - lint         # Проверка кода
+  - test         # Unit тесты
+  - build        # Сборка Docker образов
+  - security     # Сканирование безопасности
+  - deploy-dev   # Деплой на dev
+  - integration  # Интеграционные тесты
+  - deploy-staging # Деплой на staging
+  - e2e          # E2E тесты
+  - deploy-prod  # Деплой на production
+```
+
+### Стратегия деплоя:
+```yaml
+production:
+  strategy: blue-green
+  health_checks:
+    - path: /health
+      timeout: 5s
+      interval: 10s
+    - path: /api/v1/health
+      timeout: 5s
+      interval: 10s
+  
+rollback:
+  automatic: true
+  conditions:
+    - error_rate > 5%
+    - p95_latency > 5s
+    - failed_health_checks > 3
 ```

@@ -13,7 +13,7 @@ AI Career Scout - это интеллектуальная система на б
 ### 2. Модуль парсинга и фильтрации HH.ru:
 - **Сбор вакансий** через API и парсинг
 - **AI-классификация** качества вакансий
-- **Исключение "затычек"** и проплаченных позиций
+- **Исключение "нерелевантных"** и проплаченных позиций
 - **Ранжирование** по релевантности
 
 ### 3. Модуль персонализации и отклика:
@@ -43,7 +43,6 @@ AI Career Scout - это интеллектуальная система на б
 
 ### Модуль 2: Парсинг HH.ru
 **FR-2.1:** Сбор данных
-- Использование официального API HH.ru
 - Парсинг веб-страниц для расширенных данных
 - Обновление базы каждые 4 часа
 - Обработка до 100 000 вакансий/день
@@ -121,94 +120,24 @@ AI Career Scout - это интеллектуальная система на б
 ## 📊 Модель данных
 
 ```yaml
-User:
-  id: UUID
-  email: string
-  user_type: enum(student, professional, ministry_user)
-  ministry_affiliation: enum(federal, moscow, none)
-  subscription: JSON
-  created_at: datetime
-
-Resume:
-  id: UUID
-  user_id: UUID
-  original_file: string
-  parsed_data: JSON
-  extracted_skills: array[string]
-  experience_level: enum(junior, middle, senior)
-
-TestResult:
-  id: UUID
-  user_id: UUID
-  test_type: enum(technical, soft_skills, combined)
-  questions: array[JSON]
-  answers: array[JSON]
-  score: float
-  level_assessment: JSON
-  completed_at: datetime
-
-Vacancy:
-  id: UUID
-  source_id: string  # ID с HH.ru
-  title: string
-  company: string
-  description: text
-  requirements: JSON
-  parsed_skills: array[string]
-  salary_min: integer
-  salary_max: integer
-  location: string
-  is_quality_vacancy: boolean
-  quality_score: float
-  last_updated: datetime
-
-Match:
-  id: UUID
-  user_id: UUID
-  vacancy_id: UUID
-  match_score: float
-  match_details: JSON
-  status: enum(suggested, viewed, applied, rejected, hired)
-  applied_at: datetime
+Н/Д
 ```
 
 ## 🔗 Интеграции
 
 ### Основные интеграции:
-1. **DeepSeek API 3.2** - ядро AI-функционала
-2. **HH.ru API** - получение вакансий
-3. **API федерального министерства обучения** - интеграция с гос.системой
-4. **API московского министерства обучения** - доступ к столичным программам
-5. **Telegram API** - уведомления и быстрый доступ
-6. **Email сервисы** - рассылка вакансий
+Н/Д
 
 ### Технические стандарты:
-- **REST API** с версионированием /api/v1/
-- **WebSocket** для реального времени тестирования
-- **GraphQL** для сложных запросов аналитики
-- **OpenAPI 3.0** документация
+Н/Д
 
 ## 🧪 Технологический стек
 
 ### Бэкенд:
-- **Фреймворк:** FastAPI (Python 3.12+)
-- **AI движок:** DeepSeek API 3.2 + fine-tuning
-- **База данных:** PostgreSQL 16 + TimescaleDB
-- **Кэш:** Redis 7.2 (результаты тестов, вакансии)
-- **Очереди:** RabbitMQ 4.0 + Celery
-- **Парсинг:** BeautifulSoup4, Scrapy, Selenium
-- **Файлы:** MinIO/S3 для резюме
+Н/Д
 
 ### Фронтенд:
-- **Основной:** Vue 3 + Composition API
-- **UI библиотека:** Naive UI + TailwindCSS
-- **State management:** Pinia 2
-- **Чарты:** Apache ECharts
-- **Мобильное:** PWA с offline-режимом
+Н/Д
 
 ### DevOps:
-- **Контейнеризация:** Docker + Kubernetes
-- **CI/CD:** GitLab CI/CD
-- **Мониторинг:** Prometheus + Grafana + Loki
-- **Логи:** ELK Stack
-- **Хостинг:** Yandex Cloud + Selectel
+Н/Д

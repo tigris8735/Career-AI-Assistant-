@@ -2,8 +2,7 @@
 
 ![Project Status](https://img.shields.io/badge/status-development-yellow)
 ![Version](https://img.shields.io/badge/version-2.0-blue)
-![Platform](https://img.shields.io/badge/platform-AI_powered-green)
-![License](https://img.shields.io/badge/license-MIT-lightgrey)
+
 
 ## 📖 Оглавление
 
